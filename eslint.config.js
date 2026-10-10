@@ -1,4 +1,4 @@
-// https://docs.expo.dev/guides/using-eslint/
+// ESLint setup: extends Expo's flat config and excludes generated distribution files.
 const { defineConfig } = require('eslint/config');
 const expoConfig = require('eslint-config-expo/flat');
 

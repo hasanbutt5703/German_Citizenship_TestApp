@@ -1,3 +1,4 @@
+// Modal route: shows the default modal content and a link back to the home screen.
 import { Link } from 'expo-router';
 import { StyleSheet } from 'react-native';
 

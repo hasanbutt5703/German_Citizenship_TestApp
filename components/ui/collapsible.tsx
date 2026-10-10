@@ -1,3 +1,4 @@
+// Collapsible section: toggles child content beneath a themed, interactive heading.
 import { PropsWithChildren, useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 
@@ -9,7 +10,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export function Collapsible({ children, title }: PropsWithChildren & { title: string }) {
   const [isOpen, setIsOpen] = useState(false);
-  const theme = useColorScheme() ?? 'light';
+  const theme = useColorScheme() === 'dark' ? 'dark' : 'light';
 
   return (
     <ThemedView>

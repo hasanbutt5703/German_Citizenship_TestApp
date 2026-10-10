@@ -1,3 +1,4 @@
+// Themed text: applies light/dark text colors and shared text-style variants.
 import { StyleSheet, Text, type TextProps } from 'react-native';
 
 import { useThemeColor } from '@/hooks/use-theme-color';

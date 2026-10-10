@@ -1,3 +1,4 @@
+// External link: opens URLs in an in-app browser on native platforms.
 import { Href, Link } from 'expo-router';
 import { openBrowserAsync, WebBrowserPresentationStyle } from 'expo-web-browser';
 import { type ComponentProps } from 'react';

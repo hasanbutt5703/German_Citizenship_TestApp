@@ -1,3 +1,4 @@
+// Animated greeting: renders the brief waving-hand animation used in the starter UI.
 import Animated from 'react-native-reanimated';
 
 export function HelloWave() {

@@ -16,6 +16,18 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npx expo start
    ```
 
+## Production web security
+
+The static web export includes deployment security headers for Netlify and Vercel. Read [SECURITY.md](SECURITY.md) before deploying; the app must be served over HTTPS, and no secrets should be placed in client code or static assets.
+
+To create the installable web build:
+
+```bash
+npm run export:web
+```
+
+The generated `dist/` folder can be hosted as a PWA and packaged for Microsoft Store with PWABuilder. It works offline after the first successful online load and service-worker installation.
+
 In the output, you'll find options to open the app in a
 
 - [development build](https://docs.expo.dev/develop/development-builds/introduction/)

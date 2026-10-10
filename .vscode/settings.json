@@ -1,4 +1,13 @@
 {
+  "files.associations": {
+    "_headers": "plaintext",
+    "**/dist/**/*.html": "plaintext"
+  },
+  "files.exclude": {
+    "**/dist": true
+  },
+  "css.validate": false,
+  "html.validate.styles": false,
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit",
     "source.organizeImports": "explicit",

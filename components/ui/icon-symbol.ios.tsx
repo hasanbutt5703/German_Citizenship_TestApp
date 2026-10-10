@@ -1,3 +1,4 @@
+// iOS icon adapter: renders SF Symbols with configurable size, color, and weight.
 import { SymbolView, SymbolViewProps, SymbolWeight } from 'expo-symbols';
 import { StyleProp, ViewStyle } from 'react-native';
 

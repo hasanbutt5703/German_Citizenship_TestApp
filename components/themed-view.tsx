@@ -1,3 +1,4 @@
+// Themed view: applies the selected light/dark background color to a container.
 import { View, type ViewProps } from 'react-native';
 
 import { useThemeColor } from '@/hooks/use-theme-color';
