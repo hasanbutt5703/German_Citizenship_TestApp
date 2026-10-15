@@ -140,6 +140,7 @@ export default function ResultsScreen() {
   const reset = useQuizStore((s) => s.reset);
   const answers = useQuizStore((s) => s.answers);
   const questions = useQuizStore((s) => s.questions);
+  const answersById = React.useMemo(() => new Map(answers.map((answer) => [answer.questionId, answer])), [answers]);
 
   const scoreNum = Number(score ?? 0);
   const totalNum = Number(total ?? 0);
@@ -296,7 +297,7 @@ const passed =
         </View>
       </View>
       {questions.map((q, i) => {
-        const answer = answers[i];
+        const answer = answersById.get(q.id);
         return (
           <BreakdownRow
             key={q.id}

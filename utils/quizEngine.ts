@@ -4,14 +4,62 @@ import { KnowledgeQuestion, Topic } from '@/constants/knowledgeQuestions';
 
 // Quiz builders: select and randomize questions for DTZ and citizenship sessions.
 
+function allocateCounts<T>(
+  buckets: Record<string, T[]>,
+  totalQuestions: number,
+  mix: Record<string, number>
+): Record<string, number> {
+  const entries = Object.entries(mix)
+    .filter(([, ratio]) => ratio > 0)
+    .map(([key, ratio]) => ({
+      key,
+      ratio,
+      floor: Math.floor(totalQuestions * ratio),
+      spare: totalQuestions * ratio - Math.floor(totalQuestions * ratio),
+      available: buckets[key]?.length ?? 0,
+    }))
+    .sort((a, b) => b.spare - a.spare || b.ratio - a.ratio);
+
+  const counts: Record<string, number> = Object.fromEntries(entries.map(({ key }) => [key, 0]));
+  let remaining = totalQuestions;
+
+  for (const entry of entries) {
+    const count = Math.min(entry.floor, entry.available);
+    counts[entry.key] = count;
+    remaining -= count;
+  }
+
+  for (const entry of entries) {
+    while (remaining > 0 && counts[entry.key] < (buckets[entry.key]?.length ?? 0)) {
+      counts[entry.key] += 1;
+      remaining -= 1;
+      if (remaining === 0) break;
+    }
+  }
+
+  return counts;
+}
+
+function shuffleQuestionOptions<T extends { options: string[]; correctAnswer: string; correctAnswerIndex?: number; optionImages?: unknown[] }>(question: T): T {
+  const options = shuffleArray(question.options);
+  const optionImages = question.optionImages ? shuffleArray(question.optionImages) : undefined;
+  const correctAnswerIndex = options.findIndex((option) => option === question.correctAnswer);
+
+  return {
+    ...question,
+    options,
+    ...(optionImages ? { optionImages } : {}),
+    correctAnswerIndex: correctAnswerIndex >= 0 ? correctAnswerIndex : question.correctAnswerIndex ?? 0,
+  };
+}
+
 export function buildDtzMockSession(bank: LanguageQuestion[], totalQuestions: number): LanguageQuestion[] {
   // The local language bank currently contains l1... IDs, not dtz1...dtz45.
   // Use those questions for the mock DTZ session instead of filtering the
   // bank down to an empty array.
-  return shuffleArray(bank).slice(0, totalQuestions).map((q) => ({
-    ...q,
-    options: shuffleArray(q.options),
-  }));
+  return shuffleArray(bank)
+    .slice(0, totalQuestions)
+    .map((q) => shuffleQuestionOptions(q));
 }
 
 type TopicMix = Record<Topic, number>;
@@ -27,11 +75,11 @@ export function buildKnowledgeQuizSession(
     society: shuffleArray(bank.filter((q) => q.topic === 'society')),
   };
 
+  const counts = allocateCounts(byTopic, totalQuestions, mix);
   const selected: KnowledgeQuestion[] = [];
 
   (Object.keys(mix) as Topic[]).forEach((topic) => {
-    const count = Math.round(totalQuestions * mix[topic]);
-    selected.push(...byTopic[topic].slice(0, count));
+    selected.push(...byTopic[topic].slice(0, counts[topic] ?? 0));
   });
 
   if (selected.length < totalQuestions) {
@@ -40,10 +88,7 @@ export function buildKnowledgeQuizSession(
     selected.push(...remaining.slice(0, totalQuestions - selected.length));
   }
 
-  const withShuffledOptions = selected.map((q) => ({
-    ...q,
-    options: shuffleArray(q.options),
-  }));
+  const withShuffledOptions = selected.map((q) => shuffleQuestionOptions(q));
 
   return shuffleArray(withShuffledOptions).slice(0, totalQuestions);
 }
@@ -87,11 +132,11 @@ const byDifficulty: Record<Difficulty, LanguageQuestion[]> = {
     hard: shuffleArray(bank.filter((q) => q.difficulty === 'hard')),
 };
 
+const counts = allocateCounts(byDifficulty, totalQuestions, mix);
 const selected: LanguageQuestion[] = [];
 
 (Object.keys(mix) as Difficulty[]).forEach((level) => {
-    const count = Math.round(totalQuestions * mix[level]);
-    selected.push(...byDifficulty[level].slice(0, count));
+    selected.push(...byDifficulty[level].slice(0, counts[level] ?? 0));
 });
 
   // If rounding left us short (small question banks), top up from whatever remains
@@ -102,10 +147,7 @@ if (selected.length < totalQuestions) {
 }
 
   // Shuffle answer options per question, so the correct answer isn't always in the same position
-const withShuffledOptions = selected.map((q) => ({
-    ...q,
-    options: shuffleArray(q.options),
-}));
+const withShuffledOptions = selected.map((q) => shuffleQuestionOptions(q));
 
     return shuffleArray(withShuffledOptions).slice(0, totalQuestions);
 }
